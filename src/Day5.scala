@@ -52,7 +52,7 @@ class Day5(doorId: String) {
 
           // Update the character if the index is valid
           newPassword(charIndex) = nextChar
-          
+
           currentLength = currentLength + 1
         }
       }
