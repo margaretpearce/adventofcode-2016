@@ -13,7 +13,7 @@ class Day6 {
   }
 
   def getTranspose: Array[Array[Char]] = {
-    val twoDimArray : Array[Array[Char]] = codeList.toArray
+    val twoDimArray : Array[Array[Char]] = this.codeList.toArray
     twoDimArray.transpose
   }
 
