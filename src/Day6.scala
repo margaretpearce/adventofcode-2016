@@ -23,7 +23,22 @@ class Day6 {
 
     for (colArray <- swappedArray) {
       val col: Array[Char] = colArray
+      // Sort descending
       val mostFreq = col.mkString.groupBy(f => f).map(l => (l._1, l._2.length)).toList.sortBy(l => -l._2).take(1)
+      message = message.concat(mostFreq.head._1.toString)
+    }
+
+    message
+  }
+
+  def getMessagePartB: String = {
+    val swappedArray = this.getTranspose
+    var message : String = ""
+
+    for (colArray <- swappedArray) {
+      val col: Array[Char] = colArray
+      // Sort ascending
+      val mostFreq = col.mkString.groupBy(f => f).map(l => (l._1, l._2.length)).toList.sortBy(l => l._2).take(1)
       message = message.concat(mostFreq.head._1.toString)
     }
 
@@ -36,5 +51,6 @@ object Day6Puzzle {
     val puzzle = new Day6()
     puzzle.processInput(args(0))
     println(puzzle.getMessage)
+    println(puzzle.getMessagePartB)
   }
 }
