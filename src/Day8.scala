@@ -85,13 +85,13 @@ class Day8 {
     count
   }
 
-  def printScreen = {
+  def printScreen(emptyChar: String = ".") = {
     for (y <- 0 to this.height-1) {
       for (x <- 0 to this.width-1) {
         if (this.screen(y)(x)) {
           print("#")
         } else {
-          print(".")
+          print(emptyChar)
         }
       }
       print("\n")
@@ -100,17 +100,7 @@ class Day8 {
   }
 
   def printScreenLetters = {
-    for (y <- 0 to this.height-1) {
-      for (x <- 0 to this.width-1) {
-        if (this.screen(y)(x)) {
-          print("#")
-        } else {
-          print(" ")
-        }
-      }
-      print("\n")
-    }
-    print("\n\n")
+    this.printScreen(" ")
   }
 }
 
