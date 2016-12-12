@@ -75,6 +75,39 @@ class Day11 {
       println("F" + key + " " + floorItems)
     }
   }
+
+  def searchAStar: Int = {
+    // A* search
+    // Return minimal # of moves
+    0
+  }
+
+  def generateNextMoves: Array[Array[Array[Int]]] = {
+    val nextMoveCandidates = ArrayBuffer[Array[Array[Int]]]()
+
+    // Try making moves on all floors
+    for (floor <- 1 to 4) {
+
+      // Try moving all items
+      for (item <- 0 to 4) {
+        val nextMoveCandidate = ArrayBuffer[Array[Int]]()
+
+        // Only add to the list if it can't be pruned
+        if (!this.pruneMove(nextMoveCandidate.toArray)) {
+          nextMoveCandidates.append(nextMoveCandidate.toArray)
+        }
+      }
+    }
+    nextMoveCandidates.toArray
+  }
+
+  def pruneMove(move: Array[Array[Int]]): Boolean = {
+    true
+  }
+
+  def stateMatchesGoal(state: Array[Array[Int]]) : Boolean = {
+    true
+  }
 }
 
 object Day11Puzzle {
