@@ -1,16 +1,15 @@
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
-class Day13 (favoriteNumber: Int) {
+class Day13(favoriteNumber: Int) {
   private var destinationX = -1
   private var destinationY = -1
   private val startX = 1
   private val startY = 1
-  private var distinctLocations = mutable.Set[(Int, Int)]()
+  private val distinctLocations = mutable.Set[(Int, Int)]()
 
   def isCoordinateWall(x: Int, y: Int): Boolean = {
     // Find x*x + 3*x + 2*x*y + y + y*y
-    var formula = (x*x) + (3*x) + (2*x*y) + y + (y*y)
+    var formula = (x * x) + (3 * x) + (2 * x * y) + y + (y * y)
 
     // Add your puzzle input
     formula = formula + favoriteNumber
@@ -29,9 +28,9 @@ class Day13 (favoriteNumber: Int) {
     for (y <- 0 to yLimit) {
       print(y + " ")
       for (x <- 0 to xLimit) {
-        if (this.isCoordinateWall(x,y)) {
+        if (this.isCoordinateWall(x, y)) {
           print("#")
-        }  else {
+        } else {
           print(".")
         }
       }
@@ -44,33 +43,33 @@ class Day13 (favoriteNumber: Int) {
     this.destinationY = y
   }
 
-  def getShortestPathToLocation: (Int, Map[Tuple2[Int,Int], Tuple2[Int,Int]]) = {
-    val distances = mutable.Map[Tuple2[Int, Int], Int]()
-    val previous = mutable.Map[Tuple2[Int,Int], Tuple2[Int,Int]]()
+  def getShortestPathToLocation: (Int, Map[(Int, Int), (Int, Int)]) = {
+    val distances = mutable.Map[(Int, Int), Int]()
+    val previous = mutable.Map[(Int,Int), (Int,Int)]()
 
     // Add to priority queue (with smallest items appearing first in the queue)
     var queue = mutable.PriorityQueue.empty[(Int, (Int,Int))](implicitly[Ordering[(Int, (Int, Int))]].reverse)
     for (y <- 0 to this.destinationY) {
       for (x <- 0 to this.destinationX) {
-        if (!this.isCoordinateWall(x,y)) {
+        if (!this.isCoordinateWall(x, y)) {
           // Initialize distance to infinity
-          if (!distances.contains(y,x)) {
-            distances.put(Tuple2(y,x), Int.MaxValue)
+          if (!distances.contains(y, x)) {
+            distances.put(Tuple2(y, x), Int.MaxValue)
           }
 
           // Distance to starting location is 0
           if (y == this.startY && x == this.startX) {
-            distances.put((y,x), 0)
+            distances.put((y, x), 0)
           }
 
-          queue += Tuple2(distances(y,x), (y, x))
+          queue += Tuple2(distances(y, x), (y, x))
         }
       }
     }
 
-    while (!queue.isEmpty) {
+    while (queue.nonEmpty) {
       // Get vertex with best distance (starts with source)
-      val node_u: Tuple2[Int, (Int,Int)] = queue.dequeue()
+      val node_u: (Int, (Int, Int)) = queue.dequeue()
 
       // Add to distinct locations if # steps to get to this node is under 50
       if (node_u._1 <= 50) {
@@ -115,31 +114,31 @@ class Day13 (favoriteNumber: Int) {
     val neighbors = mutable.MutableList[(Int, Int)]()
 
     // North
-    if (y-1 >= 0 && !this.isCoordinateWall(x,y-1)) {
-      neighbors += Tuple2(y-1,x)
+    if (y - 1 >= 0 && !this.isCoordinateWall(x, y - 1)) {
+      neighbors += Tuple2(y - 1, x)
     }
     // South (can go in infinite direction)
-    if (!this.isCoordinateWall(x,y+1)) {
-      neighbors += Tuple2(y+1,x)
+    if (!this.isCoordinateWall(x, y + 1)) {
+      neighbors += Tuple2(y + 1, x)
     }
     // East
-    if (!this.isCoordinateWall(x+1,y)) {
-      neighbors += Tuple2(y,x+1)
+    if (!this.isCoordinateWall(x + 1, y)) {
+      neighbors += Tuple2(y, x + 1)
     }
     // West
-    if (x-1 >= 0 && !this.isCoordinateWall(x-1,y)) {
-      neighbors += Tuple2(y,x-1)
+    if (x - 1 >= 0 && !this.isCoordinateWall(x - 1, y)) {
+      neighbors += Tuple2(y, x - 1)
     }
 
     neighbors.toList
   }
 
-  def removeItemInQueue(queue: mutable.PriorityQueue[(Int, Tuple2[Int,Int])], item: Tuple2[Int, Int]): mutable.PriorityQueue[(Int, Tuple2[Int,Int])] = {
-    var dequeuedItems: ArrayBuffer[(Int, Tuple2[Int, Int])] = ArrayBuffer[(Int, Tuple2[Int,Int])]()
+  def removeItemInQueue(queue: mutable.PriorityQueue[(Int, (Int, Int))], item: (Int, Int)): mutable.PriorityQueue[(Int, (Int, Int))] = {
+    val dequeuedItems: mutable.ArrayBuffer[(Int, (Int, Int))] = mutable.ArrayBuffer[(Int, (Int,Int))]()
     var found: Boolean = false
 
     // Dequeue items until you find the one that should be filtered out
-    while (!found && !queue.isEmpty) {
+    while (!found && queue.nonEmpty) {
       val dequeued = queue.dequeue()
 
       if (dequeued._2._1.equals(item._1) && dequeued._2._2.equals(item._2)) {
@@ -158,7 +157,7 @@ class Day13 (favoriteNumber: Int) {
     queue
   }
 
-  def printShortestPath(previous: Map[Tuple2[Int,Int], Tuple2[Int,Int]]): Unit = {
+  def printShortestPath(previous: Map[(Int, Int), (Int, Int)]): Unit = {
     var sequence: String = this.destinationX + "," + this.destinationY + "\n"
     var u = (this.destinationY, this.destinationX)
     while (previous.contains(u._1, u._2)) {
@@ -185,7 +184,7 @@ object Day13Puzzle {
     println(puzzle.isCoordinateWall(x, y))
 
     // Part A
-    puzzle.setDestination(x,y)
+    puzzle.setDestination(x, y)
     val shortedPath = puzzle.getShortestPathToLocation
     println("\nDistance: " + shortedPath._1 + "\n")
     println("Path:")
