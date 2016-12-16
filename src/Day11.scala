@@ -193,17 +193,16 @@ class FloorState {
         this.currentScore == that.currentScore &&
           this.estimatedScore == that.estimatedScore &&
           this.elevator == that.elevator &&
-          this.floor(1).sorted == that.floor(1).sorted &&
-          this.floor(2).sorted == that.floor(2).sorted &&
-          this.floor(3).sorted == that.floor(3).sorted &&
-          this.floor(4).sorted == that.floor(4).sorted
+          this.floor(1).sorted.toString() == that.floor(1).sorted.toString() &&
+          this.floor(2).sorted.toString() == that.floor(2).sorted.toString() &&
+          this.floor(3).sorted.toString() == that.floor(3).sorted.toString() &&
+          this.floor(4).sorted.toString() == that.floor(4).sorted.toString()
       case _ => false
     }
 }
 
 class Day11 {
   // Puzzle input: the initial layout
-  //private val floorInitial = mutable.Map[Int, ArrayBuffer[Int]]()
   private val startState = new FloorState()
   private var endState = new FloorState()
 
@@ -312,13 +311,10 @@ class Day11 {
       val stateTuple = openSet.dequeue()
       val state = stateTuple._2
 
-      if (stateTuple._1 == 33) {
-        println("hit 33")
-      }
-
       if (state.isGoal()) {
-        this.endState = state
+        this.endState = state.copyState()
         this.printPath(cameFrom)
+        openSet.clear()
         return stateTuple._1
       }
 
