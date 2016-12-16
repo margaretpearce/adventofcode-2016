@@ -30,7 +30,7 @@ class Day16 {
     }
 
     while (checksum.length % 2 == 0) {
-      val newChecksum = this.createChecksum(checksum.toString)
+      val newChecksum = this.createChecksum(checksum.toString())
       checksum.clear()
       checksum ++= newChecksum
     }
