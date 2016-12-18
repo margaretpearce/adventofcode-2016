@@ -30,6 +30,8 @@ class Route(path: String = "", distance: Int = Int.MaxValue, x: Int = 0, y: Int 
 
 class Day17 (puzzleInput:String) {
   private val doorOpen = mutable.Map[(Int,Int), (Int,Int)]()
+  private val width = 4
+  private val height = 4
 
   def findPathFromInput(input: String): Route = {
     val nodeDistance = mutable.Map[(Int,Int), Route]()
@@ -84,9 +86,10 @@ class Day17 (puzzleInput:String) {
     val startLocation = route.getLocation()
 
     val neighbors = mutable.ListBuffer[((Int,Int), String)]()
+    val doorIsOpenCodes = "bcdef"
 
     // up
-    if ("bcdef".contains(hashOutput.charAt(0))) {
+    if (doorIsOpenCodes.contains(hashOutput.charAt(0))) {
       if (startLocation._2 > 0) {
         val up = (startLocation._1, startLocation._2 - 1)
         val path = route.getPath().concat("U")
@@ -95,23 +98,33 @@ class Day17 (puzzleInput:String) {
     }
 
     // down
-    if ("bcdef".contains(hashOutput.charAt(1))) {
-      if (startLocation._2 < 3) {
+    if (doorIsOpenCodes.contains(hashOutput.charAt(1))) {
+      if (startLocation._2 < this.height-1) {
         val down = (startLocation._1, startLocation._2 + 1)
-        val path = route.getPath().concat("U")
-        neighbors.append((up, path))
+        val path = route.getPath().concat("D")
+        neighbors.append((down, path))
       }
     }
 
     // left
-    if ("bcdef".contains(hashOutput.charAt(2))) {
-
+    if (doorIsOpenCodes.contains(hashOutput.charAt(2))) {
+      if (startLocation._1 > 0) {
+        val left = (startLocation._1 - 1, startLocation._2)
+        val path = route.getPath().concat("L")
+        neighbors.append((left, path))
+      }
     }
 
     // right
-    if ("bcdef".contains(hashOutput.charAt(3))) {
-
+    if (doorIsOpenCodes.contains(hashOutput.charAt(3))) {
+      if (startLocation._1 < this.width-1) {
+        val right = (startLocation._1 + 1, startLocation._2)
+        val path = route.getPath().concat("R")
+        neighbors.append((right, path))
+      }
     }
+
+    neighbors.toList
   }
 
   def md5Hex(s: String): String = {
