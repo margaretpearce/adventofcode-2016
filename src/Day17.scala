@@ -2,18 +2,22 @@ import java.security.MessageDigest
 import javax.xml.bind.DatatypeConverter._
 import scala.collection.mutable
 
-class Route {
-  private var pathString = ""
-  private var pathDistance = 0
-  private var currentX = 0
-  private var currentY = 0
+class Route(path: String = "", distance: Int = Int.MaxValue, x: Int = 0, y: Int = 0) {
+  private var pathString = path
+  private var pathDistance = distance
+  private var currentX = x
+  private var currentY = y
 
-  def getPath(): (String, Int) = {
-    (pathString, pathDistance)
+  def getPath(): String = {
+    this.pathString
+  }
+
+  def getDistance(): Int = {
+    this.pathDistance
   }
 
   def getLocation(): (Int, Int) = {
-    (currentX, currentY)
+    (this.currentX, this.currentY)
   }
 
   def updatePath(path: String, distance: Int, x: Int, y: Int) = {
@@ -24,30 +28,102 @@ class Route {
   }
 }
 
-class Day17 {
+class Day17 (puzzleInput:String) {
   private val doorOpen = mutable.Map[(Int,Int), (Int,Int)]()
-  // private var routesToExplore = mutable.PriorityQueue[(Int, (Int, Int))]()
-  private var routesFollowed = mutable.Map[(Int,Int), String]()
 
-  def findPathFromInput(input: String): String = {
-    val distance = mutable.Map[(Int, Int), Int]()
-    val parent = mutable.Map[(Int,Int), (Int,Int)]()
+  def findPathFromInput(input: String): Route = {
+    val nodeDistance = mutable.Map[(Int,Int), Route]()
+    val parent = mutable.Map[Route, Route]()
+    val queue = mutable.Queue[Route]()
 
-    val queue = mutable.Queue[((Int,Int), Int, String)]()
+    // Add starting node to the queue
+    val root = new Route(distance = 0)
+    nodeDistance.put(root.getLocation(), root)
+    queue.enqueue(root)
 
-    val root = ((0,0), 0)
+    while (queue.nonEmpty) {
+      val current = queue.dequeue()
+      for ((neighbor, direction) <- this.getNeighbors(current)) {
+        // Get the current distance to the node (default to "inf" if we haven't seen this node yet)
+        var neighborDistance = Int.MaxValue
+
+        // If we have seen this node before, look up its current best distance
+        if (nodeDistance.contains(neighbor)) {
+          val neighborRoute = nodeDistance(neighbor)
+          neighborDistance = neighborRoute.getDistance()
+        }
+
+        // Check if we've found a better path
+        if (neighborDistance == Int.MaxValue) {
+          neighborDistance = current.getDistance() + 1
+          val updatedPath = current.getPath().concat(direction)
+          val updatedNeighbor = new Route(path = updatedPath, distance = neighborDistance, x = neighbor._1, y = neighbor._2)
+
+          // Set distance and parent
+          nodeDistance.put(neighbor, updatedNeighbor)
+          parent.put(updatedNeighbor, current)
+
+          // Add neighbor to the queue
+          queue.enqueue(updatedNeighbor)
+        }
+      }
+    }
+
+    // Get the route that leads to the end state
+    nodeDistance((3,3))
+  }
+
+  def getNeighbors(route: Route): List[((Int,Int), String)] = {
+    // Form string to hash (puzzle input + current path)
+    val hashInput = new StringBuilder
+    hashInput ++= puzzleInput
+    hashInput ++= route.getPath()
+
+    // Get hash output
+    val hashOutput = this.md5Hex(hashInput.toString)
+    val startLocation = route.getLocation()
+
+    val neighbors = mutable.ListBuffer[((Int,Int), String)]()
+
+    // up
+    if ("bcdef".contains(hashOutput.charAt(0))) {
+      if (startLocation._2 > 0) {
+        val up = (startLocation._1, startLocation._2 - 1)
+        val path = route.getPath().concat("U")
+        neighbors.append((up, path))
+      }
+    }
+
+    // down
+    if ("bcdef".contains(hashOutput.charAt(1))) {
+      if (startLocation._2 < 3) {
+        val down = (startLocation._1, startLocation._2 + 1)
+        val path = route.getPath().concat("U")
+        neighbors.append((up, path))
+      }
+    }
+
+    // left
+    if ("bcdef".contains(hashOutput.charAt(2))) {
+
+    }
+
+    // right
+    if ("bcdef".contains(hashOutput.charAt(3))) {
+
+    }
   }
 
   def md5Hex(s: String): String = {
-    // Get MD5 hash as a string of lowercase hex digits
-    printHexBinary(MessageDigest.getInstance("MD5").digest(s.getBytes)).toLowerCase
+    // Get MD5 hash as a string of lowercase hex digits (four characters only)
+    printHexBinary(MessageDigest.getInstance("MD5").digest(s.getBytes)).take(4).toLowerCase
   }
 
 }
 
 object Day17Puzzle {
   def main(args: Array[String]): Unit = {
-    val puzzle = new Day17()
+    val puzzle = new Day17(args(0))
 
 
   }
