@@ -193,10 +193,17 @@ class FloorState {
         this.currentScore == that.currentScore &&
           this.estimatedScore == that.estimatedScore &&
           this.elevator == that.elevator &&
-          this.floor(1) == that.floor(1) &&
-          this.floor(2) == that.floor(2) &&
-          this.floor(3) == that.floor(3) &&
-          this.floor(4) == that.floor(4)
+          (
+            (this.floor(1) == that.floor(1) && this.floor(2) == that.floor(2) &&
+              this.floor(3) == that.floor(3) && this.floor(4) == that.floor(4))
+              ||
+            (this.floor(1).sorted.toString() == that.floor(1).sorted.toString() &&
+              this.floor(2).sorted.toString() == that.floor(2).sorted.toString() &&
+              this.floor(3).sorted.toString() == that.floor(3).sorted.toString() &&
+              this.floor(4).sorted.toString() == that.floor(4).sorted.toString())
+            ||
+              ()
+          )
       case _ => false
     }
 }
