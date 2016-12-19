@@ -28,99 +28,95 @@ class Route(path: String = "", distance: Int = Int.MaxValue, x: Int = 0, y: Int 
   }
 }
 
-class Day17 (puzzleInput:String) {
-  private val doorOpen = mutable.Map[(Int,Int), (Int,Int)]()
+class Day17(puzzleInput: String) {
   private val width = 4
   private val height = 4
 
-  def findPathFromInput(input: String): Route = {
-    val nodeDistance = mutable.Map[(Int,Int), Route]()
-    val parent = mutable.Map[Route, Route]()
-    val queue = mutable.Queue[Route]()
-
-    // Add starting node to the queue
+  def getShortestPathToLocation: Route = {
+    // Create Route object representing the source
     val root = new Route(distance = 0)
-    nodeDistance.put(root.getLocation(), root)
-    queue.enqueue(root)
+
+    // Add to priority queue (with smallest items appearing first in the queue)
+    implicit def orderedState(f: (Int, Route)): Ordered[(Int, Route)] = new Ordered[(Int, Route)] {
+      def compare(other: (Int, Route)) = -1 * f._1.compare(other._1)
+    }
+
+    val queue = mutable.PriorityQueue.empty[(Int, Route)]
+    queue.enqueue((root.getDistance(), root))
 
     while (queue.nonEmpty) {
-      val current = queue.dequeue()
-      for ((neighbor, direction) <- this.getNeighbors(current)) {
-        // Get the current distance to the node (default to "inf" if we haven't seen this node yet)
-        var neighborDistance = Int.MaxValue
+      // Get route with shortest path (starts with source)
+      val node_u: (Int, Route) = queue.dequeue()
 
-        // If we have seen this node before, look up its current best distance
-        if (nodeDistance.contains(neighbor)) {
-          val neighborRoute = nodeDistance(neighbor)
-          neighborDistance = neighborRoute.getDistance()
-        }
+      // Check if we have found the destination
+      if (node_u._2.getLocation() ==(3, 3)) {
+        return node_u._2
+      }
 
-        // Check if we've found a better path
-        if (neighborDistance == Int.MaxValue) {
-          neighborDistance = current.getDistance() + 1
-          val updatedPath = current.getPath().concat(direction)
-          val updatedNeighbor = new Route(path = updatedPath, distance = neighborDistance, x = neighbor._1, y = neighbor._2)
+      // Get neighbors of this node
+      val neighbors = this.getNeighbors(node_u._2)
 
-          // Set distance and parent
-          nodeDistance.put(neighbor, updatedNeighbor)
-          parent.put(updatedNeighbor, current)
-
-          // Add neighbor to the queue
-          queue.enqueue(updatedNeighbor)
-        }
+      for (n <- neighbors) {
+        // Try exploring paths from this neighbor
+        // (available doors will change based on particular paths, so we can't filter out previously seen locations)
+        queue.enqueue((n.getDistance(), n))
       }
     }
 
-    // Get the route that leads to the end state
-    nodeDistance((3,3))
+    println("No route found")
+    null
   }
 
-  def getNeighbors(route: Route): List[((Int,Int), String)] = {
+  def getNeighbors(route: Route): List[Route] = {
     // Form string to hash (puzzle input + current path)
     val hashInput = new StringBuilder
     hashInput ++= puzzleInput
     hashInput ++= route.getPath()
 
     // Get hash output
-    val hashOutput = this.md5Hex(hashInput.toString)
+    val hashOutput = this.md5Hex(hashInput.toString())
     val startLocation = route.getLocation()
 
-    val neighbors = mutable.ListBuffer[((Int,Int), String)]()
+    val neighbors = mutable.ListBuffer[Route]()
     val doorIsOpenCodes = "bcdef"
 
-    // up
+    // Up
     if (doorIsOpenCodes.contains(hashOutput.charAt(0))) {
       if (startLocation._2 > 0) {
         val up = (startLocation._1, startLocation._2 - 1)
         val path = route.getPath().concat("U")
-        neighbors.append((up, path))
+        val upRoute = new Route(path = path, distance = route.getDistance() + 1, x = up._1, y = up._2)
+        neighbors.append(upRoute)
       }
     }
 
-    // down
+    // Down
     if (doorIsOpenCodes.contains(hashOutput.charAt(1))) {
-      if (startLocation._2 < this.height-1) {
+      if (startLocation._2 < this.height - 1) {
         val down = (startLocation._1, startLocation._2 + 1)
         val path = route.getPath().concat("D")
-        neighbors.append((down, path))
+        val downRoute = new Route(path = path, distance = route.getDistance() + 1, x = down._1, y = down._2)
+        neighbors.append(downRoute)
       }
     }
 
-    // left
+    // Left
     if (doorIsOpenCodes.contains(hashOutput.charAt(2))) {
       if (startLocation._1 > 0) {
         val left = (startLocation._1 - 1, startLocation._2)
         val path = route.getPath().concat("L")
-        neighbors.append((left, path))
+        val leftRoute = new Route(path = path, distance = route.getDistance() + 1, x = left._1, y = left._2)
+        neighbors.append(leftRoute)
       }
     }
 
-    // right
+    // Right
     if (doorIsOpenCodes.contains(hashOutput.charAt(3))) {
-      if (startLocation._1 < this.width-1) {
+      if (startLocation._1 < this.width - 1) {
         val right = (startLocation._1 + 1, startLocation._2)
         val path = route.getPath().concat("R")
-        neighbors.append((right, path))
+        val rightRoute = new Route(path = path, distance = route.getDistance() + 1, x = right._1, y = right._2)
+        neighbors.append(rightRoute)
       }
     }
 
@@ -131,13 +127,14 @@ class Day17 (puzzleInput:String) {
     // Get MD5 hash as a string of lowercase hex digits (four characters only)
     printHexBinary(MessageDigest.getInstance("MD5").digest(s.getBytes)).take(4).toLowerCase
   }
-
 }
 
 object Day17Puzzle {
   def main(args: Array[String]): Unit = {
     val puzzle = new Day17(args(0))
-
-
+    val route = puzzle.getShortestPathToLocation
+    // val route = puzzle.findPathFromInput()
+    println("Route length: " + route.getDistance())
+    println("Route: " + route.getPath())
   }
 }

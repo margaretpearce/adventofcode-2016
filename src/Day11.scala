@@ -201,8 +201,6 @@ class FloorState {
               this.floor(2).sorted.toString() == that.floor(2).sorted.toString() &&
               this.floor(3).sorted.toString() == that.floor(3).sorted.toString() &&
               this.floor(4).sorted.toString() == that.floor(4).sorted.toString())
-            ||
-              ()
           )
       case _ => false
     }
