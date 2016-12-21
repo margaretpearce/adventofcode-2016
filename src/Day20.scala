@@ -48,6 +48,7 @@ class Day20 {
       if (i._1 > lastIPEnd + 1) {
         count += (i._1 - lastIPEnd - 1)
       }
+      // Move ahead to the largest blacklisted IP we've seen so far
       lastIPEnd = Math.max(lastIPEnd, i._2)
     }
 
