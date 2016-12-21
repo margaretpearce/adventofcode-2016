@@ -1,5 +1,12 @@
-class Day21(unscrambled: String, fileName: String) {
-  private var buildScrambled: StringBuilder = new StringBuilder(unscrambled)
+import scala.collection.immutable.HashMap
+
+class Day21(fileName: String) {
+  private var buildScrambled: StringBuilder = new StringBuilder()
+
+  def setInput(input: String) = {
+    this.buildScrambled.clear()
+    this.buildScrambled ++= input
+  }
 
   def processInstructions: Unit = {
     val instructions = scala.io.Source.fromFile(fileName)
@@ -40,10 +47,57 @@ class Day21(unscrambled: String, fileName: String) {
         val y = i(4).toInt
         this.reverse(x,y)
       }
-
-      println(this.buildScrambled)
     }
   }
+
+  def unprocessInstructions: Unit = {
+    // Save all instructions to array
+    val instructions = scala.io.Source.fromFile(fileName).getLines().toArray
+
+    // Run through the instructions in reverse
+    for (instructionIndex <- instructions.length-1 to 0 by -1) {
+      val i = instructions(instructionIndex).split(" ")
+
+      if (i(0).equalsIgnoreCase("move")) {
+        // Move back by reversing the order
+        val x = i(2).toInt
+        val y = i(5).toInt
+        this.move(y,x)
+      }
+      else if (i(0).equalsIgnoreCase("swap")) {
+        // Repeat the swap to undo it
+        if (i(1).equalsIgnoreCase("position")) {
+          val x = i(2).toInt
+          val y = i(5).toInt
+          this.swapPosition(x,y)
+        }
+        else if (i(1).equalsIgnoreCase("letter")) {
+          val x = i(2).charAt(0)
+          val y = i(5).charAt(0)
+          this.swapLetter(y,x)
+        }
+      }
+      else if (i(0).equalsIgnoreCase("rotate")) {
+        if (i(1).equalsIgnoreCase("based")) {
+          val letter = i.last.charAt(0)
+          this.undoRotateByLetterPosition(letter)
+        }
+        else if (i(1).equalsIgnoreCase("left") || i(1).equalsIgnoreCase("right")) {
+          // Rotate in the opposite direction to undo this step
+          val steps = i(2).toInt
+          val rotateLeft = i(1).equalsIgnoreCase("left")
+          this.rotate(!rotateLeft, steps)
+        }
+      }
+      else if (i(0).equalsIgnoreCase("reverse")) {
+        // Run reverse again to undo it
+        val x = i(2).toInt
+        val y = i(4).toInt
+        this.reverse(x,y)
+      }
+    }
+  }
+
 
   def move(from:Int, to:Int): Unit = {
     // Remove the character at position X
@@ -55,11 +109,6 @@ class Day21(unscrambled: String, fileName: String) {
   }
 
   def rotate(rotateLeft:Boolean, numSteps:Int) = {
-    // ABCDEF
-    // Rotate left 2: CDEFAB
-    // = substring(2) + substring(0,2)
-    // Rotate right 2: EFABCD
-    // = substring(-2) + substring(0,-2)
     val numRotations = numSteps % this.buildScrambled.length
 
     if (rotateLeft) {
@@ -84,7 +133,18 @@ class Day21(unscrambled: String, fileName: String) {
       numSteps += 1
     }
 
-    this.rotate(false, numSteps)
+    this.rotate(rotateLeft = false, numSteps)
+  }
+
+  def undoRotateByLetterPosition(letter: Char) = {
+    // Find the index of this letter
+    val index = this.buildScrambled.indexOf(letter)
+
+    // Map the original number of rotations to the rotations needed for inverse
+    val inverseRotationNumber = HashMap((0,7), (1,7), (2,2), (3,6), (4,1), (5,5), (6,0), (7,4))
+    val inverseNumSteps = inverseRotationNumber(index)
+
+    this.rotate(rotateLeft = false, inverseNumSteps)
   }
 
   def swapLetter(firstLetter:Char, secondLetter:Char) = {
@@ -111,23 +171,30 @@ class Day21(unscrambled: String, fileName: String) {
   }
 
   def reverse(from:Int, to:Int) = {
-    var reversedSubstring = this.buildScrambled.substring(from, to+1).reverse
+    val reversedSubstring = this.buildScrambled.substring(from, to+1).reverse
     this.buildScrambled.delete(from, to+1)
     this.buildScrambled.insert(from, reversedSubstring)
   }
 
-  def getScrambledPassword: String = {
+  def getPassword: String = {
     this.buildScrambled.toString()
   }
 }
 
 object Day21Puzzle {
   def main(args: Array[String]): Unit = {
-    val puzzle = new Day21(args(0), args(1))
-    puzzle.processInstructions
+    val puzzle = new Day21(args(0))
 
     // Part A
-    val scrambled = puzzle.getScrambledPassword
+    puzzle.setInput(args(1))
+    puzzle.processInstructions
+    val scrambled = puzzle.getPassword
     println("Part A: " + scrambled)
+
+    // Part B
+    puzzle.setInput(args(2))
+    puzzle.unprocessInstructions
+    val unscrambled = puzzle.getPassword
+    println("Part B: " + unscrambled)
   }
 }
