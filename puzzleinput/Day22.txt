@@ -1,0 +1,6 @@
+root@ebhq-gridcenter# df -h
+Filesystem              Size  Used  Avail  Use%
+/dev/grid/node-x0-y0     94T   65T    29T   69%
+/dev/grid/node-x0-y1     88T   69T    19T   78%
+/dev/grid/node-x1-y0     92T   72T    20T   78%
+/dev/grid/node-x1-y1     93T   73T    20T   78%
