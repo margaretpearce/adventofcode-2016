@@ -28,6 +28,20 @@ class Day22 {
   def getNumberOfNodes(): Int = {
     this.totalSpace.size
   }
+
+  def countViablePairs(): Int = {
+    var numPairs: Int = 0
+
+    for (a <- this.usedSpace.keySet) {
+      for (b <- this.usedSpace.keySet) {
+        if (this.usedSpace(a) != 0 && a != b && (this.usedSpace(a) <= (this.totalSpace(b) - this.usedSpace(b)))) {
+          numPairs += 1
+        }
+      }
+    }
+
+    numPairs
+  }
 }
 
 object Day22Puzzle {
@@ -35,5 +49,6 @@ object Day22Puzzle {
     val puzzle = new Day22()
     puzzle.setNodeInformation(args(0))
     println("# nodes: " + puzzle.getNumberOfNodes())
+    println("# viable pairs: " + puzzle.countViablePairs())
   }
 }
