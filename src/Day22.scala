@@ -1,6 +1,22 @@
 import scala.collection.mutable
 import scala.collection.mutable.HashMap
 
+class State(x:Int, y:Int, costVal:Int, cluster:Array[Array[Int]]) {
+  private var cost = costVal
+
+  def getHeuristicCost(): Int = {
+    x + y
+  }
+
+  def getCost(): Int = {
+    cost
+  }
+
+  def setCost(newCost:Int): Unit = {
+    cost = newCost
+  }
+}
+
 class Day22 {
   private var usedSpace = HashMap[(Int,Int), Int]()
   private var totalSpace = HashMap[(Int,Int), Int]()
