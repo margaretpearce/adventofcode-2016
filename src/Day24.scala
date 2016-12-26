@@ -182,6 +182,34 @@ class Day24 {
     }
     println(sequence)
   }
+
+  def findShortestTour(): (Int, String) = {
+    // Start at 0
+    val pointstoVisit = this.points.keys.toList.filter(p => p != 0)
+    val tourOptions = pointstoVisit.permutations.toList
+
+    var shortestDistance = Int.MaxValue
+    var shortestTour = ""
+
+    // Try all tour permutations and find the shortest one based on pre-computed distances
+    for (tour <- tourOptions) {
+      var tourDistance = 0
+      var startingPlace = 0
+
+      for (i <- tour) {
+        tourDistance += this.distances((startingPlace, i))
+        startingPlace = i
+      }
+
+      if (tourDistance < shortestDistance) {
+        shortestDistance = tourDistance
+        shortestTour = "0," + tour.mkString(",")
+      }
+    }
+
+    // Return the shortest distance and the route to take
+    (shortestDistance, shortestTour)
+  }
 }
 
 object Day24Puzzle {
@@ -192,5 +220,7 @@ object Day24Puzzle {
     puzzle.setMap(args(0))
     puzzle.findPairwiseDistances()
     println(puzzle.printLocations())
+    val shortestTour = puzzle.findShortestTour()
+    println("Shortest tour: " + shortestTour._1 + " (" + shortestTour._2 + ")")
   }
 }
