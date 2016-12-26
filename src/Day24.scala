@@ -1,12 +1,11 @@
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.HashMap
 
 class Day24 {
-  private var map = ArrayBuffer[Array[Char]]()
-  private var points = HashMap[Int, (Int,Int)]()
+  private val map = ArrayBuffer[Array[Char]]()
+  private val points = mutable.HashMap[Int, (Int,Int)]()
   private var startingPoint = (-1,-1)
-  private val distances = HashMap[(Int,Int), Int]()
+  private val distances = mutable.HashMap[(Int,Int), Int]()
 
   // Read in the map to get coordinates of each point
   def setMap(fileName: String): Unit = {
@@ -33,7 +32,7 @@ class Day24 {
     val locationPairs = this.points.keys.toList.combinations(2)
 
     for (pair <- locationPairs) {
-      val tuplePair = (pair(0), pair(1))
+      val tuplePair = (pair.head, pair(1))
       this.distances.put(tuplePair, -1)
     }
   }
@@ -63,14 +62,13 @@ class Day24 {
       val startLocation = this.points(pair._1)
       val endLocation = this.points(pair._2)
       val distance = this.getShortestPath(startLocation, endLocation)
-      this.distances.put(pair, distance._1)
-      this.distances.put((pair._2, pair._1), distance._1)
+      this.distances.put(pair, distance)
+      this.distances.put((pair._2, pair._1), distance)
     }
   }
 
-  def getShortestPath(start: (Int,Int), end: (Int,Int)): (Int, Map[(Int, Int), (Int, Int)]) = {
+  def getShortestPath(start: (Int,Int), end: (Int,Int)): Int = {
     val distances = mutable.Map[(Int, Int), Int]()
-    val previous = mutable.Map[(Int,Int), (Int,Int)]()
 
     // Add to priority queue (with smallest items appearing first in the queue)
     var queue = mutable.PriorityQueue.empty[(Int, (Int,Int))](implicitly[Ordering[(Int, (Int, Int))]].reverse)
@@ -90,7 +88,7 @@ class Day24 {
 
       // Check if we have found the destination
       if (node_u._2._1.equals(end._1) && node_u._2._2.equals(end._2)) {
-        return (node_u._1, previous.toMap)
+        return node_u._1
       }
 
       // Get neighbors of this node
@@ -107,9 +105,8 @@ class Day24 {
         }
 
         if (!distances.contains(n._1, n._2) || distanceToNeighbor < distances(n._1, n._2)) {
-          // Update the distance and previous node values to reflect the newly found shortest path
+          // Update the distance o reflect the newly found shortest path
           distances.put(Tuple2(n._1, n._2), distanceToNeighbor)
-          previous.put(Tuple2(n._1, n._2), Tuple2(node_u._2._1, node_u._2._2))
 
           // Update the queue
           queue = this.removeItemInQueue(queue, Tuple2(n._1, n._2))
@@ -119,7 +116,7 @@ class Day24 {
     }
 
     // If we never dequeued the destination node, return -1 to indicate an error occurred
-    (-100, previous.toMap)
+    -1
   }
 
   def getNeighbors(x: Int, y: Int): List[(Int, Int)] = {
@@ -134,7 +131,7 @@ class Day24 {
       neighbors += Tuple2(x, y + 1)
     }
     // East
-    if (x+1 < this.map(0).length && !this.isCoordinateWall(x + 1, y)) {
+    if (x+1 < this.map.head.length && !this.isCoordinateWall(x + 1, y)) {
       neighbors += Tuple2(x + 1, y)
     }
     // West
@@ -171,16 +168,6 @@ class Day24 {
 
     // Return the modified queue
     queue
-  }
-
-  def printShortestPath(previous: Map[(Int, Int), (Int, Int)]): Unit = {
-    var sequence: String = this.startingPoint._1 + "," + this.startingPoint._2 + "\n"
-    var u = this.points(3)
-    while (previous.contains(u._1, u._2)) {
-      sequence = previous(u._1, u._2)._2 + "," + previous(u._1, u._2)._1 + "\n" + sequence
-      u = previous(u._1, u._2)
-    }
-    println(sequence)
   }
 
   def findShortestTour(returnToStart: Boolean): (Int, String) = {
