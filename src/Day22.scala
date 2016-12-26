@@ -67,7 +67,7 @@ class Day22 {
   }
 
   def getArrayState(): Array[Array[Int]] = {
-    val array = Array.ofDim(this.x_max, this.y_max)[Int]
+    val array = Array.ofDim[Int](this.x_max, this.y_max)
     for (x <- 0 to this.x_max) {
       for (y <- 0 to this.y_max) {
         array(x)(y) = this.usedSpace(x,y)
